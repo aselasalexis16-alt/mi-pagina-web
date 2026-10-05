@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="shortcut icon" href="#">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillMatch - Plataforma de Tutorías Académicas</title>
+
+  <!-- Fuente e Íconos (Font Awesome) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Enlace con el archivo CSS externo -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- NAVEGACIÓN SUPERIOR DINÁMICA -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <i class="fa-solid fa-graduation-cap logo-icon"></i>
+        <span>SkillMatch</span>
+      </div>
+
+      <!-- Menú Vista Pública (Antes de Iniciar Sesión) -->
+      <nav id="publicNav" class="nav-menu">
+        <div class="nav-links">
+          <button class="nav-btn" onclick="openModal('whyModal')">
+            <i class="fa-solid fa-circle-question"></i> ¿Por qué SkillMatch?
+          </button>
+          <button class="nav-btn" onclick="openModal('howModal')">
+            <i class="fa-solid fa-gears"></i> Cómo Funciona
+          </button>
+          <button class="nav-btn" onclick="openModal('qualityModal')">
+            <i class="fa-solid fa-award"></i> Garantía de Calidad
+          </button>
+        </div>
+
+        <div class="auth-buttons">
+          <button class="btn btn-outline" onclick="openModal('loginModal')">
+            <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
+          </button>
+          <button class="btn btn-primary" onclick="openModal('registerModal')">
+            <i class="fa-solid fa-user-plus"></i> Registrarse
+          </button>
+        </div>
+      </nav>
+
+      <!-- Menú Vista Privada (Se activa al Iniciar Sesión) -->
+      <div id="userNav" class="user-nav-bar hidden">
+        <div class="user-info-badge">
+          <i class="fa-solid fa-circle-user avatar-icon"></i>
+          <div>
+            <strong id="navUserName">Nombre Usuario</strong>
+            <span id="navUserRole" class="role-pill">Estudiante</span>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-outline btn-logout" onclick="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- VISTA PRIVADA / PANEL DE ADMINISTRADOR -->
+<main id="adminDashboard" class="dashboard-view hidden">
+  <div class="dashboard-container">
+    <div class="dashboard-banner">
+      <h2><i class="fa-solid fa-users-gear"></i> Panel de Administración</h2>
+      <p>Gestión de usuarios registrados en la plataforma SkillMatch.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3>Usuarios Registrados (<span id="totalUsersCount">0</span>)</h3>
+        <button class="btn btn-sm btn-outline" onclick="clearAllUsers()">
+          <i class="fa-solid fa-trash"></i> Eliminar Registro Local
+        </button>
+      </div>
+
+      <!-- Tabla de usuarios -->
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Correo Electrónico</th>
+              <th>Rol</th>
+              <th>Materia / Nota</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="adminUsersTableBody">
+            <!-- Renderizado desde script.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+  <!-- VISTA PÚBLICA / LANDING PAGE -->
+  <main id="publicView" class="main-content">
+    <section class="hero-section">
+      <div class="hero-badge">
+        <i class="fa-solid fa-sparkles"></i> Aprendizaje Personalizado al Instante
+      </div>
+      <h1 class="hero-title">Conectamos mentes brillantes para un futuro imparable</h1>
+      <p class="hero-subtitle">
+        La plataforma líder en asesorías y tutorías académicas entre pares. Aprende lo que necesitas o comparte tu conocimiento de forma segura y estructurada.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-lg btn-primary" onclick="openModal('registerModal')">
+          Comenzar Ahora <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- Métricas destacadas -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <i class="fa-solid fa-users metric-icon"></i>
+          <h3>+1,200</h3>
+          <p>Estudiantes Activos</p>
+        </div>
+        <div class="metric-card">
+          <i class="fa-solid fa-user-check metric-icon"></i>
+          <h3>98.5%</h3>
+          <p>Aprobación de Profesores</p>
+        </div>
+        <div class="metric-card">
+          <i class="fa-solid fa-book-bookmark metric-icon"></i>
+          <h3>+3,500</h3>
+          <p>Clases Completadas</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- VISTA PRIVADA / PANEL DEL ESTUDIANTE -->
+  <main id="studentDashboard" class="dashboard-view hidden">
+    <div class="dashboard-container">
+      <div class="dashboard-banner">
+        <h2>Panel de Búsqueda de Tutorías</h2>
+        <p>Encuentra a tu tutor ideal verificado y agenda tus clases particulares por $15.000 COP.</p>
+      </div>
+
+      <!-- Filtros de búsqueda -->
+      <div class="filter-bar">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchTutor" placeholder="Buscar por materia o nombre de profesor..." onkeyup="filterTutors()">
+        </div>
+        <select id="filterSubject" onchange="filterTutors()">
+          <option value="ALL">Todas las materias</option>
+          <option value="Matemáticas y Cálculo">Matemáticas y Cálculo</option>
+          <option value="Física y Química">Física y Química</option>
+          <option value="Programación y Desarrollo">Programación y Desarrollo</option>
+          <option value="Inglés y Lenguas">Inglés y Lenguas</option>
+        </select>
+      </div>
+
+      <!-- Grilla de Tutores Disponibles -->
+      <div id="tutorsGrid" class="tutors-grid">
+        <!-- Renderizado desde script.js -->
+      </div>
+    </div>
+  </main>
+
+  <!-- VISTA PRIVADA / PANEL DEL PROFESOR -->
+  <main id="teacherDashboard" class="dashboard-view hidden">
+    <div class="dashboard-container">
+      <div class="dashboard-banner">
+        <h2>Panel del Tutor Verificado</h2>
+        <p>Administra las solicitudes de tus estudiantes y gestiona tus sesiones de clase.</p>
+      </div>
+
+      <!-- Solicitudes de Clases -->
+      <div class="teacher-panel-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-calendar-check"></i> Solicitudes de Clases Recibidas</h3>
+          </div>
+          <div id="classRequestsList" class="requests-list">
+            <!-- Renderizado desde script.js -->
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-comments"></i> Mensajes y Confirmaciones</h3>
+          </div>
+          <div id="teacherChatBox" class="chat-box">
+            <div class="empty-state">
+              <i class="fa-regular fa-comment-dots"></i>
+              <p>Selecciona una clase para enviar un mensaje o enlace de reunión al estudiante.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODALES FLOTANTES -->
+
+  <!-- Modal: ¿Por qué SkillMatch? -->
+  <div id="whyModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal('whyModal')">&times;</button>
+      <div class="modal-header">
+        <i class="fa-solid fa-rocket modal-icon"></i>
+        <h2>¿Por qué escoger SkillMatch?</h2>
+      </div>
+      <div class="modal-body">
+        <p>SkillMatch asegura el aprendizaje efectivo mediante un estricto control de calidad y precios accesibles.</p>
+        
+        <div class="feature-item">
+          <i class="fa-solid fa-shield-check feature-icon"></i>
+          <div>
+            <h4>Tutores Evaluados Rigurosamente</h4>
+            <p>Ningún profesor imparte clases sin antes aprobar un examen dinámico de 20 preguntas (mínimo 60% para aprobar).</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <i class="fa-solid fa-wallet feature-icon"></i>
+          <div>
+            <h4>Pago Transparente y Seguro</h4>
+            <p>Tarifa plana de $15.000 COP por clase. Reserva con un abono del 50% ($7.500 COP) y liquida el saldo restante al finalizar.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Cómo Funciona -->
+  <div id="howModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal('howModal')">&times;</button>
+      <div class="modal-header">
+        <i class="fa-solid fa-gears modal-icon"></i>
+        <h2>¿Cómo Funciona la Plataforma?</h2>
+      </div>
+      <div class="modal-body">
+        <ol class="steps-list">
+          <li><strong>1. Registro Seguro:</strong> Crea tu cuenta verificando tu correo electrónico.</li>
+          <li><strong>2. Selección de Tutor:</strong> Explora profesores cualificados y revisa su nota del examen técnico.</li>
+          <li><strong>3. Agendamiento y Abono:</strong> Elige fecha/hora y abona $7.500 COP para reservar tu cupo.</li>
+          <li><strong>4. Confirmación Directa:</strong> El profesor acepta tu solicitud y se conecta contigo.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Garantía de Calidad -->
+  <div id="qualityModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal('qualityModal')">&times;</button>
+      <div class="modal-header">
+        <i class="fa-solid fa-award modal-icon"></i>
+        <h2>Garantía de Calidad SkillMatch</h2>
+      </div>
+      <div class="modal-body">
+        <ul>
+          <li>Pruebas técnicas obligatorias para profesores con un banco de 20 preguntas por materia.</li>
+          <li>Abono de $7.500 COP retenido hasta la confirmación de la tutoría.</li>
+          <li>Garantía de reembolso total ante cualquier eventualidad.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALES DE AUTENTICACIÓN -->
+
+  <!-- Modal: Iniciar Sesión -->
+  <div id="loginModal" class="modal-overlay hidden">
+    <div class="modal-card sm">
+      <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
+      <div class="modal-header">
+        <i class="fa-solid fa-right-to-bracket modal-icon"></i>
+        <h2>Iniciar Sesión</h2>
+      </div>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Correo Electrónico</label>
+          <input type="email" id="loginEmail" placeholder="tu@correo.com" required>
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Ingresar a SkillMatch</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Registro -->
+  <div id="registerModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal('registerModal')">&times;</button>
+      <div class="modal-header">
+        <i class="fa-solid fa-user-plus modal-icon"></i>
+        <h2>Crear Cuenta en SkillMatch</h2>
+      </div>
+      
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Nombre Completo</label>
+          <input type="text" id="regName" placeholder="Ej: Alexis Ruiz" required>
+        </div>
+
+        <div class="form-group">
+          <label>Correo Electrónico</label>
+          <input type="email" id="regEmail" placeholder="tu@ejemplo.com" required>
+        </div>
+
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="regPassword" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de Usuario</label>
+          <select id="regRole" onchange="toggleTeacherFields()">
+            <option value="student">Aprendiz / Estudiante</option>
+            <option value="teacher">Maestro / Tutor</option>
+          </select>
+        </div>
+
+        <!-- Campos adicionales para Tutor -->
+        <div id="teacherFields" class="teacher-fields hidden">
+          <div class="form-group">
+            <label>Materia a Impartir</label>
+            <select id="regSubject">
+              <option value="Matemáticas y Cálculo">Matemáticas y Cálculo</option>
+              <option value="Física y Química">Física y Química</option>
+              <option value="Programación y Desarrollo">Programación y Desarrollo</option>
+              <option value="Inglés y Lenguas">Inglés y Lenguas</option>
+            </select>
+          </div>
+          <p class="alert-info">
+            <i class="fa-solid fa-triangle-exclamation"></i> Como maestro, deberás aprobar un examen de 20 preguntas (Mínimo 60% de aciertos) para activar tu perfil.
+          </p>
+        </div>
+
+        <!-- CAPTCHA ESTILO GOOGLE RECAPTCHA -->
+        <div class="recaptcha-box">
+          <div class="recaptcha-content">
+            <label class="recaptcha-checkbox-label">
+              <input type="checkbox" id="humanCaptcha" required>
+              <span class="checkbox-custom"></span>
+              <span class="captcha-text">Soy humano</span>
+            </label>
+          </div>
+          <div class="recaptcha-brand">
+            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA logo">
+            <span>reCAPTCHA</span>
+            <small>Privacidad - Términos</small>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Registrarse y Enviar Correo</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Verificación de Correo (Simulación de Bandeja de Entrada) -->
+  <div id="emailConfirmModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <i class="fa-solid fa-envelope-circle-check modal-icon"></i>
+        <h2>Correo de Confirmación Enviado</h2>
+      </div>
+      <div class="modal-body">
+        <p class="text-center">Hemos enviado un enlace de verificación a la siguiente dirección:</p>
+        <div class="email-target-badge" id="confirmEmailDisplay">correo@ejemplo.com</div>
+        
+        <p class="text-muted text-center style-sm">Haz clic en el enlace recibido en tu correo para verificar y activar tu cuenta:</p>
+        
+        <!-- Tarjeta que simula el correo que le llegó al usuario -->
+        <div class="email-mock-card">
+          <div class="email-mock-header">
+            <strong>De:</strong> Soporte SkillMatch &lt;no-reply@skillmatch.co&gt;<br>
+            <strong>Para:</strong> <span id="emailRecipient">correo@ejemplo.com</span><br>
+            <strong>Asunto:</strong> Activa tu cuenta en SkillMatch
+          </div>
+          <div class="email-mock-body">
+            <p>¡Hola! Gracias por registrarte en SkillMatch.</p>
+            <p>Por favor, haz clic en el siguiente enlace para activar tu cuenta de usuario:</p>
+            
+            <button class="btn btn-primary btn-block" onclick="completeEmailVerification()">
+              <i class="fa-solid fa-shield-check"></i> Confirmar mi correo electrónico
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EXAMEN DE EVALUACIÓN PARA TUTOR (20 PREGUNTAS) -->
+  <div id="examModal" class="modal-overlay hidden">
+    <div class="modal-card lg">
+      <div class="modal-header border-b">
+        <div>
+          <h2>Examen de Calificación Técnica</h2>
+          <p class="subtitle">Materia: <span id="examSubjectTitle">Matemáticas</span> | Pregunta <span id="currentQNum">1</span> de 20</p>
+        </div>
+        <div class="exam-timer">
+          <i class="fa-solid fa-clock"></i> <span id="timerDisplay">15:00</span>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="progress-bar-container">
+          <div id="examProgressBar" class="progress-bar-fill"></div>
+        </div>
+
+        <div class="question-container">
+          <h3 id="questionText">Cargando pregunta...</h3>
+          <div id="optionsContainer" class="options-grid">
+            <!-- Renderizado desde script.js -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="nextQBtn" class="btn btn-primary" onclick="nextQuestion()" disabled>
+          Siguiente Pregunta <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RESULTADO DEL EXAMEN -->
+  <div id="examResultModal" class="modal-overlay hidden">
+    <div class="modal-card sm text-center">
+      <div id="examResultIcon" class="result-icon-box"></div>
+      <h2 id="examResultTitle">Resultado del Examen</h2>
+      <p id="examResultText">Obtuviste 12 de 20 aciertos (60%)</p>
+
+      <div class="result-actions">
+        <button id="examResultBtn" class="btn btn-primary btn-block" onclick="closeExamResult()">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AGENDAR CLASE Y PAGO DE ABONO ($7.500 COP) -->
+  <div id="bookingModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal('bookingModal')">&times;</button>
+      <div class="modal-header">
+        <i class="fa-solid fa-calendar-plus modal-icon"></i>
+        <h2>Agendar Clase Particular</h2>
+      </div>
+
+      <form onsubmit="handleBookingSubmit(event)">
+        <p>Tutor seleccionado: <strong id="bookingTutorName">Profesor</strong></p>
+        <p>Materia: <strong id="bookingSubject">Materia</strong></p>
+
+        <div class="form-group">
+          <label>Selecciona Fecha y Hora</label>
+          <input type="datetime-local" id="bookingDateTime" required>
+        </div>
+
+        <div class="payment-summary-card">
+          <h4><i class="fa-solid fa-receipt"></i> Desglose del Pago</h4>
+          <div class="summary-row">
+            <span>Costo Total de la Clase:</span>
+            <strong>$15.000 COP</strong>
+          </div>
+          <div class="summary-row highlight">
+            <span>Abono Obligatorio (50%):</span>
+            <strong>$7.500 COP</strong>
+          </div>
+          <div class="summary-row">
+            <span>Saldo Restante al finalizar:</span>
+            <span>$7.500 COP</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Método de Pago del Abono ($7.500 COP)</label>
+          <select id="paymentMethod" required>
+            <option value="nequi">Nequi / Daviplata (Transferencia Móvil)</option>
+            <option value="card">Tarjeta de Crédito / Débito PSE</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          Pagar Abono ($7.500 COP) y Confirmar Reserva
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Enlace con el archivo JavaScript externo -->
+  <script src="script.js"></script>
+</body>
+</html>
